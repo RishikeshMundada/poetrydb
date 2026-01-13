@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Of Ink and Echos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300;1,400&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --paper-bg: #FDFBF7;
+            --ink-primary: #2C2C2C;
+            --ink-secondary: #595959;
+            --accent: #8B5E3C;
+            --highlight: #E8E4D9;
+        }
+
+        body {
+            background-color: var(--paper-bg);
+            background-image: radial-gradient(#E8E4D9 1px, transparent 1px);
+            background-size: 32px 32px;
+            color: var(--ink-primary);
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        h1, h2, h3, .serif-heading {
+            font-family: 'Playfair Display', serif;
+        }
+
+        .poem-text {
+            font-family: 'Merriweather', serif;
+            line-height: 1.8;
+            white-space: pre-wrap; /* Preserves stanza breaks */
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background-color: #d1d1d1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background-color: #b0b0b0;
+        }
+
+        /* Loader */
+        .loader {
+            border: 3px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 3px solid var(--accent);
+            width: 24px;
+            height: 24px;
+            -webkit-animation: spin 1s linear infinite; /* Safari */
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Fade Animation */
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Selection Styling */
+        ::selection {
+            background: #e4dccc; /* Soft highlight color */
+            color: #1a1a1a;
+        }
+
+        /* iOS-like Tooltip Button */
+        #lookup-tooltip {
+            position: absolute;
+            background-color: #1a1a1a;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            pointer-events: auto;
+            transform: translateX(-50%);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.2s, transform 0.2s;
+            display: none; /* Hidden by default */
+            cursor: pointer;
+        }
+        
+        #lookup-tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -6px;
+            border-width: 6px;
+            border-style: solid;
+            border-color: #1a1a1a transparent transparent transparent;
+        }
+
+        #lookup-tooltip.visible {
+            opacity: 1;
+            transform: translateX(-50%) translateY(-10px);
+            display: block;
+        }
+
+        /* Definition Modal */
+        #definition-modal-backdrop {
+            background-color: rgba(253, 251, 247, 0.6);
+            backdrop-filter: blur(4px);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- Navigation -->
+    <nav class="sticky top-0 z-50 bg-[#FDFBF7]/95 backdrop-blur-md border-b border-stone-200 shadow-sm">
+        <div class="max-w-4xl mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-2 cursor-pointer" onclick="app.navigate('home')">
+                <i data-lucide="feather" class="text-stone-700 w-6 h-6"></i>
+                <span class="text-xl font-medium tracking-tight serif-heading">Of Ink and Echos</span>
+            </div>
+            <div class="flex space-x-6 text-sm text-stone-600 font-medium">
+                <button onclick="app.navigate('home')" class="hover:text-stone-900 transition-colors">Discover</button>
+                <button onclick="app.navigate('search')" class="hover:text-stone-900 transition-colors">Search</button>
+                <button onclick="app.navigate('favorites')" class="hover:text-stone-900 transition-colors">Favorites</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main id="app-container" class="flex-grow max-w-4xl mx-auto px-6 py-8 w-full relative">
+        <!-- Content injected via JS -->
+    </main>
+
+    <!-- Look Up Tooltip (Floating) -->
+    <div id="lookup-tooltip" onclick="app.lookupSelection()" onmousedown="event.preventDefault()">
+        Look Up
+    </div>
+
+    <!-- Definition Modal Overlay -->
+    <div id="definition-modal-backdrop" class="fixed inset-0 z-[60] hidden flex items-center justify-center p-4" onclick="app.closeDefinition()">
+        <!-- Modal Card -->
+        <div id="definition-card" class="bg-white w-full max-w-md rounded-2xl shadow-2xl border border-stone-100 p-8 transform transition-all scale-95 opacity-0" onclick="event.stopPropagation()">
+            <div class="flex justify-between items-start mb-4">
+                <div>
+                    <h3 id="def-word" class="text-3xl serif-heading text-stone-900 capitalize mb-1"></h3>
+                    <p id="def-phonetic" class="text-stone-400 font-serif italic"></p>
+                </div>
+                <button onclick="app.closeDefinition()" class="text-stone-400 hover:text-stone-600 p-1 rounded-full hover:bg-stone-50">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            
+            <div id="def-content" class="space-y-4 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
+                <!-- Content injected here -->
+                <div class="loader mx-auto"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="border-t border-stone-200 mt-auto py-8 text-center text-stone-500 text-sm bg-stone-50/50 backdrop-blur-sm">
+        <p class="font-serif italic">"Words are only painted fire; a look is the fire itself."</p>
+    </footer>
+
+    <!-- Templates (Hidden) -->
+    <template id="view-home">
+        <div class="fade-in space-y-20 py-8">
+            
+            <!-- Hero / Daily Poem -->
+            <section class="text-center relative">
+                <div class="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-8 w-24 h-1 bg-stone-200/50 rounded-full"></div>
+                <span class="uppercase tracking-[0.2em] text-xs font-bold text-stone-400 mb-6 block">Poem of the Day</span>
+                <div id="daily-poem-container" class="max-w-3xl mx-auto bg-white p-8 md:p-12 rounded-2xl shadow-sm border border-stone-100">
+                    <!-- Daily poem content -->
+                    <div class="loader mx-auto"></div>
+                </div>
+            </section>
+
+             <!-- Moods (Moved Up) -->
+             <section class="max-w-3xl mx-auto text-center">
+                <h2 class="text-2xl text-stone-800 mb-6 font-light italic serif-heading">What is your heart seeking?</h2>
+                <div class="flex flex-wrap justify-center gap-3">
+                    <button onclick="app.searchByTerm('Love')" class="px-6 py-2.5 rounded-full bg-white border border-stone-200 text-stone-600 hover:bg-stone-800 hover:text-white hover:border-stone-800 transition-all shadow-sm hover:shadow-md">Love</button>
+                    <button onclick="app.searchByTerm('Nature')" class="px-6 py-2.5 rounded-full bg-white border border-stone-200 text-stone-600 hover:bg-stone-800 hover:text-white hover:border-stone-800 transition-all shadow-sm hover:shadow-md">Nature</button>
+                    <button onclick="app.searchByTerm('Death')" class="px-6 py-2.5 rounded-full bg-white border border-stone-200 text-stone-600 hover:bg-stone-800 hover:text-white hover:border-stone-800 transition-all shadow-sm hover:shadow-md">Melancholy</button>
+                    <button onclick="app.searchByTerm('Spring')" class="px-6 py-2.5 rounded-full bg-white border border-stone-200 text-stone-600 hover:bg-stone-800 hover:text-white hover:border-stone-800 transition-all shadow-sm hover:shadow-md">Spring</button>
+                    <button onclick="app.searchByTerm('Time')" class="px-6 py-2.5 rounded-full bg-white border border-stone-200 text-stone-600 hover:bg-stone-800 hover:text-white hover:border-stone-800 transition-all shadow-sm hover:shadow-md">Time</button>
+                    <button onclick="app.searchByTerm('Dream')" class="px-6 py-2.5 rounded-full bg-white border border-stone-200 text-stone-600 hover:bg-stone-800 hover:text-white hover:border-stone-800 transition-all shadow-sm hover:shadow-md">Dreams</button>
+                </div>
+            </section>
+
+            <!-- The Greats (Top) -->
+            <section>
+                <div class="flex flex-col md:flex-row justify-between items-end mb-8 border-b border-stone-200 pb-4">
+                    <h2 class="text-3xl text-stone-800 serif-heading">The Greats</h2>
+                    <span class="text-xs text-stone-400 uppercase tracking-wider mt-2 md:mt-0">Curated Masters</span>
+                </div>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                    <!-- Generated via JS -->
+                    <button onclick="app.fetchAuthorSample('William Shakespeare')" class="group h-32 p-6 bg-stone-800 text-[#FDFBF7] rounded-xl hover:bg-stone-700 hover:shadow-lg transition-all text-left flex flex-col justify-between">
+                        <div class="font-serif text-xl">Shakespeare</div>
+                        <div class="text-xs text-stone-400 opacity-60 group-hover:opacity-100 transition-opacity">The Bard</div>
+                    </button>
+                    <button onclick="app.fetchAuthorSample('Emily Dickinson')" class="group h-32 p-6 bg-white border border-stone-200 rounded-xl hover:border-stone-400 hover:shadow-md transition-all text-left flex flex-col justify-between">
+                        <div class="font-serif text-xl text-stone-800">Dickinson</div>
+                        <div class="text-xs text-stone-400">The Recluse</div>
+                    </button>
+                    <button onclick="app.fetchAuthorSample('Edgar Allan Poe')" class="group h-32 p-6 bg-white border border-stone-200 rounded-xl hover:border-stone-400 hover:shadow-md transition-all text-left flex flex-col justify-between">
+                        <div class="font-serif text-xl text-stone-800">Poe</div>
+                        <div class="text-xs text-stone-400">The Macabre</div>
+                    </button>
+                    <button onclick="app.fetchAuthorSample('Robert Frost')" class="group h-32 p-6 bg-white border border-stone-200 rounded-xl hover:border-stone-400 hover:shadow-md transition-all text-left flex flex-col justify-between">
+                        <div class="font-serif text-xl text-stone-800">Frost</div>
+                        <div class="text-xs text-stone-400">The Naturalist</div>
+                    </button>
+                </div>
+            </section>
+
+             <!-- Random Discovery (Moved to bottom) -->
+             <section class="bg-stone-200/50 p-10 rounded-2xl text-center border border-stone-300/30 backdrop-blur-sm">
+                <i data-lucide="sparkles" class="w-8 h-8 text-stone-400 mx-auto mb-4"></i>
+                <h2 class="text-2xl mb-3 text-stone-800 serif-heading">Serendipity</h2>
+                <p class="text-stone-600 mb-8 font-light italic">"A good poem is a contribution to reality."</p>
+                <button onclick="app.fetchRandomPoem()" class="bg-stone-800 text-[#FDFBF7] px-10 py-4 rounded-full hover:bg-stone-700 transition-all shadow-lg hover:shadow-xl hover:-translate-y-1 flex items-center mx-auto gap-3 text-lg font-medium">
+                    <i data-lucide="shuffle" class="w-5 h-5"></i>
+                    <span>Read a Random Poem</span>
+                </button>
+            </section>
+        </div>
+    </template>
+
+    <template id="view-search">
+        <div class="fade-in max-w-2xl mx-auto pt-8">
+            <h2 class="text-4xl serif-heading text-center mb-10">Find a Poem</h2>
+            
+            <div class="relative mb-12">
+                <input type="text" id="search-input" placeholder="Search by title (e.g., Ozymandias)..." 
+                    class="w-full px-8 py-5 text-xl bg-white border border-stone-200 rounded-full focus:outline-none focus:ring-2 focus:ring-stone-400 shadow-md placeholder-stone-300"
+                    onkeypress="if(event.key === 'Enter') app.performSearch()">
+                <button onclick="app.performSearch()" class="absolute right-3 top-3 bg-stone-800 text-white p-3 rounded-full hover:bg-stone-700 transition-colors">
+                    <i data-lucide="search" class="w-6 h-6"></i>
+                </button>
+            </div>
+
+            <div id="search-results" class="space-y-6">
+                <!-- Results go here -->
+                <div class="text-center text-stone-400 italic mt-16">
+                    <i data-lucide="library" class="w-12 h-12 mx-auto mb-4 opacity-20"></i>
+                    Enter a title to begin your journey...
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <template id="view-poem">
+        <div class="fade-in max-w-3xl mx-auto pb-16 pt-4">
+            <button onclick="app.back()" class="mb-8 flex items-center text-sm font-medium text-stone-500 hover:text-stone-900 transition-colors bg-white px-4 py-2 rounded-full shadow-sm border border-stone-100 w-fit">
+                <i data-lucide="arrow-left" class="w-4 h-4 mr-2"></i> Back to Hub
+            </button>
+            
+            <div class="bg-white p-10 md:p-16 shadow-xl shadow-stone-200/50 rounded-2xl border border-stone-100 relative">
+                <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-stone-200 via-stone-400 to-stone-200 opacity-20 rounded-t-2xl"></div>
+                
+                <button onclick="app.toggleFavorite()" id="fav-btn" class="absolute top-10 right-10 text-stone-300 hover:text-red-500 transition-colors p-2 hover:bg-stone-50 rounded-full">
+                    <i data-lucide="heart" class="w-7 h-7"></i>
+                </button>
+
+                <h1 id="poem-title" class="text-4xl md:text-5xl serif-heading text-stone-900 mb-4 text-center leading-tight"></h1>
+                <div class="flex justify-center mb-12">
+                    <span class="h-px w-20 bg-stone-300 my-auto mx-4"></span>
+                    <h3 id="poem-author" class="text-sm font-bold text-stone-500 uppercase tracking-widest"></h3>
+                    <span class="h-px w-20 bg-stone-300 my-auto mx-4"></span>
+                </div>
+                
+                <!-- Poem content container with specific ID for selection targeting -->
+                <div id="poem-container-inner">
+                    <div id="poem-lines" class="poem-text text-xl md:text-2xl text-stone-800 mb-12 px-2 md:px-8 text-center md:text-left leading-loose"></div>
+                </div>
+                
+                <div class="border-t border-stone-100 pt-8 mt-12 text-center text-xs font-semibold text-stone-300 uppercase tracking-widest">
+                    <span>Of Ink and Echos Archive</span>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <template id="view-favorites">
+        <div class="fade-in max-w-3xl mx-auto pt-8">
+            <h2 class="text-4xl serif-heading mb-3">Your Collection</h2>
+            <p class="text-stone-500 mb-12 text-lg">Poems you've saved for a rainy day.</p>
+            
+            <div id="favorites-list" class="grid gap-6">
+                <!-- Favorites injected here -->
+            </div>
+            
+            <div id="no-favorites" class="hidden text-center py-32 bg-white rounded-2xl border border-stone-200 border-dashed shadow-sm">
+                <div class="bg-stone-50 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i data-lucide="book-open" class="w-8 h-8 text-stone-400"></i>
+                </div>
+                <h3 class="text-xl font-medium text-stone-800 mb-2">Your collection is empty</h3>
+                <p class="text-stone-500 mb-6 max-w-xs mx-auto">Start exploring and save the poems that speak to your soul.</p>
+                <button onclick="app.navigate('home')" class="text-stone-900 font-semibold hover:underline underline-offset-4 decoration-2 decoration-stone-300">Go discover some</button>
+            </div>
+        </div>
+    </template>
+
+    <script>
+        class PoetryApp {
+            constructor() {
+                this.container = document.getElementById('app-container');
+                this.history = []; 
+                this.favorites = JSON.parse(localStorage.getItem('poetry_favorites')) || [];
+                this.currentPoemData = null; 
+                this.selectedText = '';
+                this.tooltip = document.getElementById('lookup-tooltip');
+                this.init();
+            }
+
+            init() {
+                this.renderHome();
+                lucide.createIcons();
+                this.initSelectionListener();
+            }
+
+            // --- Dictionary / Selection Logic ---
+            initSelectionListener() {
+                // Listen for text selection changes
+                document.addEventListener('selectionchange', () => this.handleSelection());
+                // Handle scrolling/resizing to hide tooltip
+                window.addEventListener('scroll', () => this.hideTooltip());
+                window.addEventListener('resize', () => this.hideTooltip());
+            }
+
+            handleSelection() {
+                const selection = window.getSelection();
+                
+                // Only act if we have text
+                if (selection.isCollapsed || !selection.toString().trim()) {
+                    this.hideTooltip();
+                    return;
+                }
+
+                const text = selection.toString().trim();
+                // Basic validation: Is it inside a poem container? 
+                // We use anchorNode to check parent. 
+                // We want to allow looking up anywhere effectively, but especially in poems.
+                // Let's just allow it globally for now as it's a useful feature.
+                
+                // Limit to reasonably short selections (likely single words or short phrases)
+                if (text.split(' ').length > 3 || text.length > 30) {
+                    this.hideTooltip();
+                    return;
+                }
+
+                this.selectedText = text;
+                this.showTooltip(selection);
+            }
+
+            showTooltip(selection) {
+                const range = selection.getRangeAt(0);
+                const rect = range.getBoundingClientRect();
+                
+                // Calculate position relative to the page
+                // We want it centered above the selection
+                const top = rect.top + window.scrollY - 40; // 40px above
+                const left = rect.left + window.scrollX + (rect.width / 2);
+
+                this.tooltip.style.top = `${top}px`;
+                this.tooltip.style.left = `${left}px`;
+                this.tooltip.classList.add('visible');
+            }
+
+            hideTooltip() {
+                this.tooltip.classList.remove('visible');
+            }
+
+            async lookupSelection() {
+                const word = this.selectedText.replace(/[^a-zA-Z\s]/g, ""); // Clean punctuation
+                this.hideTooltip();
+                
+                const backdrop = document.getElementById('definition-modal-backdrop');
+                const card = document.getElementById('definition-card');
+                const content = document.getElementById('def-content');
+                const wordTitle = document.getElementById('def-word');
+                const phonetic = document.getElementById('def-phonetic');
+
+                // Show Modal with Loader
+                backdrop.classList.remove('hidden');
+                // Small timeout to allow transition
+                setTimeout(() => {
+                    card.classList.remove('opacity-0', 'scale-95');
+                    card.classList.add('opacity-100', 'scale-100');
+                }, 10);
+
+                wordTitle.textContent = word;
+                phonetic.textContent = '';
+                content.innerHTML = '<div class="flex justify-center py-8"><div class="loader"></div></div>';
+
+                try {
+                    const res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`);
+                    if (!res.ok) throw new Error('Not found');
+                    const data = await res.json();
+                    this.renderDefinition(data[0]);
+                } catch (e) {
+                    content.innerHTML = `
+                        <div class="text-center py-6">
+                            <i data-lucide="help-circle" class="w-10 h-10 text-stone-300 mx-auto mb-2"></i>
+                            <p class="text-stone-500">Definition not found for "<b>${word}</b>".</p>
+                        </div>
+                    `;
+                    lucide.createIcons();
+                }
+            }
+
+            renderDefinition(entry) {
+                const content = document.getElementById('def-content');
+                const phonetic = document.getElementById('def-phonetic');
+                
+                if (entry.phonetic) {
+                    phonetic.textContent = entry.phonetic;
+                }
+
+                let html = '';
+
+                // Loop through meanings
+                entry.meanings.forEach(meaning => {
+                    html += `
+                        <div class="mb-4">
+                            <span class="inline-block px-2 py-1 bg-stone-100 text-xs font-bold text-stone-500 rounded uppercase mb-2">${meaning.partOfSpeech}</span>
+                            <ul class="space-y-2">
+                    `;
+                    
+                    // Show max 3 definitions per part of speech to keep it clean
+                    meaning.definitions.slice(0, 3).forEach(def => {
+                        html += `
+                            <li class="text-stone-700 text-sm leading-relaxed border-l-2 border-stone-200 pl-3">
+                                ${def.definition}
+                                ${def.example ? `<div class="text-stone-400 italic mt-1 text-xs">"${def.example}"</div>` : ''}
+                            </li>
+                        `;
+                    });
+
+                    html += `
+                            </ul>
+                        </div>
+                    `;
+                });
+
+                if (entry.sourceUrls && entry.sourceUrls.length > 0) {
+                     html += `<div class="mt-4 pt-4 border-t border-stone-50 text-xs text-stone-300 truncate"><a href="${entry.sourceUrls[0]}" target="_blank" class="hover:underline">Read more on Wiktionary</a></div>`
+                }
+
+                content.innerHTML = html;
+            }
+
+            closeDefinition() {
+                const backdrop = document.getElementById('definition-modal-backdrop');
+                const card = document.getElementById('definition-card');
+                
+                card.classList.remove('opacity-100', 'scale-100');
+                card.classList.add('opacity-0', 'scale-95');
+                
+                setTimeout(() => {
+                    backdrop.classList.add('hidden');
+                }, 200);
+            }
+
+            // --- Navigation ---
+            navigate(viewName) {
+                if (viewName === 'home') this.renderHome();
+                if (viewName === 'search') this.renderSearch();
+                if (viewName === 'favorites') this.renderFavorites();
+                window.scrollTo(0, 0);
+            }
+
+            back() {
+                this.navigate('home');
+            }
+
+            // --- Rendering Views ---
+            renderHome() {
+                const template = document.getElementById('view-home').content.cloneNode(true);
+                this.container.innerHTML = '';
+                this.container.appendChild(template);
+                this.loadDailyPoem();
+                lucide.createIcons();
+            }
+
+            renderSearch() {
+                const template = document.getElementById('view-search').content.cloneNode(true);
+                this.container.innerHTML = '';
+                this.container.appendChild(template);
+                lucide.createIcons();
+            }
+
+            renderFavorites() {
+                const template = document.getElementById('view-favorites').content.cloneNode(true);
+                const list = template.getElementById('favorites-list');
+                const emptyState = template.getElementById('no-favorites');
+
+                if (this.favorites.length === 0) {
+                    emptyState.classList.remove('hidden');
+                } else {
+                    this.favorites.forEach(poem => {
+                        const card = this.createPoemCard(poem, true);
+                        list.appendChild(card);
+                    });
+                }
+
+                this.container.innerHTML = '';
+                this.container.appendChild(template);
+                lucide.createIcons();
+            }
+
+            renderPoemView(poem) {
+                this.currentPoemData = poem;
+                const template = document.getElementById('view-poem').content.cloneNode(true);
+                
+                template.getElementById('poem-title').textContent = poem.title;
+                template.getElementById('poem-author').textContent = poem.author;
+                
+                const lines = Array.isArray(poem.lines) ? poem.lines : [];
+                template.getElementById('poem-lines').textContent = lines.join('\n');
+                
+                // Removed line count logic
+
+                const isFav = this.favorites.some(p => p.title === poem.title && p.author === poem.author);
+                const favBtn = template.getElementById('fav-btn');
+                if (isFav) {
+                    favBtn.classList.add('text-red-500');
+                    favBtn.classList.remove('text-stone-300');
+                    favBtn.querySelector('svg').setAttribute('fill', 'currentColor');
+                }
+
+                this.container.innerHTML = '';
+                this.container.appendChild(template);
+                lucide.createIcons();
+                window.scrollTo(0, 0);
+            }
+
+            // --- Logic & API Calls ---
+            
+            async loadDailyPoem() {
+                const container = document.getElementById('daily-poem-container');
+                if (!container) return;
+
+                const today = new Date().toDateString();
+                const storedDaily = JSON.parse(localStorage.getItem('daily_poem'));
+
+                if (storedDaily && storedDaily.date === today) {
+                    this.renderDailyPoemCard(storedDaily.poem, container);
+                } else {
+                    try {
+                        const res = await fetch('https://poetrydb.org/random');
+                        const data = await res.json();
+                        if (data && data[0]) {
+                            const poem = data[0];
+                            localStorage.setItem('daily_poem', JSON.stringify({ date: today, poem: poem }));
+                            this.renderDailyPoemCard(poem, container);
+                        }
+                    } catch (e) {
+                        container.innerHTML = `<p class="text-stone-500">Could not fetch daily poem.</p>`;
+                    }
+                }
+            }
+
+            renderDailyPoemCard(poem, container) {
+                const snippet = poem.lines.slice(0, 6).join('\n');
+                container.innerHTML = `
+                    <div class="cursor-pointer group" onclick='app.viewPoem(${JSON.stringify(poem).replace(/'/g, "&#39;")})'>
+                        <h3 class="text-3xl md:text-5xl serif-heading text-stone-900 mb-4 group-hover:text-stone-700 transition-colors leading-tight">${poem.title}</h3>
+                        <p class="text-xs font-bold text-stone-400 uppercase tracking-[0.2em] mb-8">${poem.author}</p>
+                        <p class="font-serif text-stone-600 italic leading-loose text-lg md:text-xl border-l-4 border-stone-200 pl-6 md:pl-8 text-left opacity-90 group-hover:opacity-100 group-hover:border-stone-400 transition-all">${snippet}...</p>
+                        <div class="mt-8 text-sm font-semibold text-stone-800 flex items-center justify-center md:justify-start">
+                            <span>Read Full Poem</span>
+                            <i data-lucide="arrow-right" class="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform"></i>
+                        </div>
+                    </div>
+                `;
+                lucide.createIcons();
+            }
+
+            async fetchRandomPoem() {
+                this.showGlobalLoading();
+                try {
+                    const res = await fetch('https://poetrydb.org/random');
+                    const data = await res.json();
+                    if (data && data[0]) {
+                        this.renderPoemView(data[0]);
+                    }
+                } catch (e) {
+                    alert("The muses are silent (API Error). Try again.");
+                    this.renderHome();
+                }
+            }
+
+            async fetchAuthorSample(author) {
+                this.showGlobalLoading();
+                try {
+                    const res = await fetch(`https://poetrydb.org/author,random/${author};5`);
+                    const data = await res.json();
+                    this.showListResults(`Selected works of ${author}`, data);
+                } catch (e) {
+                    alert("Could not fetch author.");
+                    this.renderHome();
+                }
+            }
+
+            async searchByTerm(term) {
+                this.navigate('search');
+                const input = document.getElementById('search-input');
+                if(input) input.value = term;
+                this.performSearch(term);
+            }
+
+            async performSearch(termOverride = null) {
+                const input = document.getElementById('search-input');
+                const term = termOverride || input.value.trim();
+                
+                if (!term) return;
+
+                const resultsContainer = document.getElementById('search-results');
+                resultsContainer.innerHTML = '<div class="loader mx-auto my-10"></div>';
+
+                try {
+                    const res = await fetch(`https://poetrydb.org/title/${term}`);
+                    const data = await res.json();
+
+                    if (data.status === 404 || !Array.isArray(data)) {
+                        resultsContainer.innerHTML = `<p class="text-center text-stone-500">No poems found with that title.</p>`;
+                    } else {
+                        this.renderSearchResults(data.slice(0, 20), resultsContainer);
+                    }
+                } catch (e) {
+                    resultsContainer.innerHTML = `<p class="text-center text-stone-500">Error searching.</p>`;
+                }
+            }
+
+            showListResults(title, poems) {
+                const template = document.getElementById('view-search').content.cloneNode(true);
+                this.container.innerHTML = '';
+                this.container.appendChild(template);
+                
+                const searchInputDiv = document.querySelector('input').parentNode;
+                searchInputDiv.style.display = 'none';
+                document.querySelector('h2').textContent = title;
+                
+                const resultsContainer = document.getElementById('search-results');
+                if (Array.isArray(poems)) {
+                    this.renderSearchResults(poems, resultsContainer);
+                } else {
+                    resultsContainer.innerHTML = '<p class="text-center text-stone-500">No poems found.</p>';
+                }
+                
+                const backBtn = document.createElement('button');
+                backBtn.className = "mb-4 flex items-center text-sm font-medium text-stone-500 hover:text-stone-900 transition-colors absolute top-0 left-0 bg-white px-3 py-1.5 rounded-full border border-stone-100 shadow-sm";
+                backBtn.innerHTML = '<i data-lucide="arrow-left" class="w-4 h-4 mr-2"></i> Home';
+                backBtn.onclick = () => this.navigate('home');
+                
+                const titleEl = document.querySelector('h2');
+                titleEl.classList.add('relative', 'pt-12'); 
+                titleEl.prepend(backBtn);
+                lucide.createIcons();
+            }
+
+            renderSearchResults(poems, container) {
+                container.innerHTML = '';
+                poems.forEach(poem => {
+                    const card = this.createPoemCard(poem);
+                    container.appendChild(card);
+                });
+                lucide.createIcons();
+            }
+
+            createPoemCard(poem, isRemovable = false) {
+                const div = document.createElement('div');
+                div.className = 'bg-white p-6 rounded-xl border border-stone-100 hover:shadow-lg hover:border-stone-200 transition-all cursor-pointer group relative';
+                
+                const snippet = poem.lines ? poem.lines.slice(0, 2).join(' / ') + '...' : 'Click to read';
+
+                div.innerHTML = `
+                    <div onclick='app.viewPoem(${JSON.stringify(poem).replace(/'/g, "&#39;")})'>
+                        <h4 class="text-xl font-serif text-stone-800 font-medium group-hover:text-black mb-1">${poem.title}</h4>
+                        <p class="text-xs font-bold text-stone-400 uppercase tracking-widest mb-4">${poem.author}</p>
+                        <p class="text-sm text-stone-500 font-serif italic opacity-70 leading-relaxed">${snippet}</p>
+                    </div>
+                `;
+
+                if (isRemovable) {
+                    const removeBtn = document.createElement('button');
+                    removeBtn.className = "absolute top-4 right-4 text-stone-300 hover:text-stone-500 p-2 hover:bg-stone-50 rounded-full";
+                    removeBtn.innerHTML = '<i data-lucide="x" class="w-4 h-4"></i>';
+                    removeBtn.onclick = (e) => {
+                        e.stopPropagation();
+                        this.removeFavorite(poem);
+                    };
+                    div.appendChild(removeBtn);
+                }
+
+                return div;
+            }
+
+            viewPoem(poem) {
+                this.renderPoemView(poem);
+            }
+
+            showGlobalLoading() {
+                this.container.innerHTML = '<div class="flex h-64 items-center justify-center"><div class="loader"></div></div>';
+            }
+
+            // --- Favorites Logic ---
+            toggleFavorite() {
+                if (!this.currentPoemData) return;
+                
+                const idx = this.favorites.findIndex(p => p.title === this.currentPoemData.title && p.author === this.currentPoemData.author);
+                const btn = document.getElementById('fav-btn');
+                
+                if (idx > -1) {
+                    this.favorites.splice(idx, 1);
+                    btn.classList.remove('text-red-500');
+                    btn.classList.add('text-stone-300');
+                    btn.querySelector('svg').setAttribute('fill', 'none');
+                } else {
+                    this.favorites.push(this.currentPoemData);
+                    btn.classList.add('text-red-500');
+                    btn.classList.remove('text-stone-300');
+                    btn.querySelector('svg').setAttribute('fill', 'currentColor');
+                }
+                
+                localStorage.setItem('poetry_favorites', JSON.stringify(this.favorites));
+            }
+
+            removeFavorite(poem) {
+                const idx = this.favorites.findIndex(p => p.title === poem.title && p.author === poem.author);
+                if (idx > -1) {
+                    this.favorites.splice(idx, 1);
+                    localStorage.setItem('poetry_favorites', JSON.stringify(this.favorites));
+                    this.renderFavorites(); 
+                }
+            }
+        }
+
+        const app = new PoetryApp();
+    </script>
+</body>
+</html>
