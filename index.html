@@ -101,6 +101,8 @@
             transition: opacity 0.2s, transform 0.2s;
             display: none; /* Hidden by default */
             cursor: pointer;
+            white-space: nowrap;
+            max-width: 90vw;
         }
         
         #lookup-tooltip::after {
@@ -131,21 +133,21 @@
 
     <!-- Navigation -->
     <nav class="sticky top-0 z-50 bg-[#FDFBF7]/95 backdrop-blur-md border-b border-stone-200 shadow-sm">
-        <div class="max-w-4xl mx-auto px-6 py-4 flex justify-between items-center">
+        <div class="max-w-4xl mx-auto px-4 md:px-6 py-3 md:py-4 flex flex-col sm:flex-row justify-between items-center gap-3 sm:gap-0">
             <div class="flex items-center space-x-2 cursor-pointer" onclick="app.navigate('home')">
-                <i data-lucide="feather" class="text-stone-700 w-6 h-6"></i>
-                <span class="text-xl font-medium tracking-tight serif-heading">Of Ink and Echos</span>
+                <i data-lucide="feather" class="text-stone-700 w-5 h-5 md:w-6 md:h-6"></i>
+                <span class="text-lg md:text-xl font-medium tracking-tight serif-heading">Of Ink and Echos</span>
             </div>
-            <div class="flex space-x-6 text-sm text-stone-600 font-medium">
-                <button onclick="app.navigate('home')" class="hover:text-stone-900 transition-colors">Discover</button>
-                <button onclick="app.navigate('search')" class="hover:text-stone-900 transition-colors">Search</button>
-                <button onclick="app.navigate('favorites')" class="hover:text-stone-900 transition-colors">Favorites</button>
+            <div class="flex space-x-4 md:space-x-6 text-xs md:text-sm text-stone-600 font-medium w-full sm:w-auto justify-center sm:justify-end">
+                <button onclick="app.navigate('home')" class="hover:text-stone-900 transition-colors py-2 px-2">Discover</button>
+                <button onclick="app.navigate('search')" class="hover:text-stone-900 transition-colors py-2 px-2">Search</button>
+                <button onclick="app.navigate('favorites')" class="hover:text-stone-900 transition-colors py-2 px-2">Favorites</button>
             </div>
         </div>
     </nav>
 
     <!-- Main Content Area -->
-    <main id="app-container" class="flex-grow max-w-4xl mx-auto px-6 py-8 w-full relative">
+    <main id="app-container" class="flex-grow max-w-4xl mx-auto px-4 md:px-6 py-6 md:py-8 w-full relative">
         <!-- Content injected via JS -->
     </main>
 
@@ -157,10 +159,10 @@
     <!-- Definition Modal Overlay -->
     <div id="definition-modal-backdrop" class="fixed inset-0 z-[60] hidden flex items-center justify-center p-4" onclick="app.closeDefinition()">
         <!-- Modal Card -->
-        <div id="definition-card" class="bg-white w-full max-w-md rounded-2xl shadow-2xl border border-stone-100 p-8 transform transition-all scale-95 opacity-0" onclick="event.stopPropagation()">
+        <div id="definition-card" class="bg-white w-full max-w-md rounded-2xl shadow-2xl border border-stone-100 p-6 md:p-8 transform transition-all scale-95 opacity-0 m-4" onclick="event.stopPropagation()">
             <div class="flex justify-between items-start mb-4">
                 <div>
-                    <h3 id="def-word" class="text-3xl serif-heading text-stone-900 capitalize mb-1"></h3>
+                    <h3 id="def-word" class="text-2xl md:text-3xl serif-heading text-stone-900 capitalize mb-1"></h3>
                     <p id="def-phonetic" class="text-stone-400 font-serif italic"></p>
                 </div>
                 <button onclick="app.closeDefinition()" class="text-stone-400 hover:text-stone-600 p-1 rounded-full hover:bg-stone-50">
@@ -168,7 +170,7 @@
                 </button>
             </div>
             
-            <div id="def-content" class="space-y-4 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
+            <div id="def-content" class="space-y-4 max-h-[50vh] md:max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
                 <!-- Content injected here -->
                 <div class="loader mx-auto"></div>
             </div>
@@ -176,19 +178,19 @@
     </div>
 
     <!-- Footer -->
-    <footer class="border-t border-stone-200 mt-auto py-8 text-center text-stone-500 text-sm bg-stone-50/50 backdrop-blur-sm">
+    <footer class="border-t border-stone-200 mt-auto py-8 text-center text-stone-500 text-sm bg-stone-50/50 backdrop-blur-sm px-4">
         <p class="font-serif italic">"Words are only painted fire; a look is the fire itself."</p>
     </footer>
 
     <!-- Templates (Hidden) -->
     <template id="view-home">
-        <div class="fade-in space-y-20 py-8">
+        <div class="fade-in space-y-12 md:space-y-20 py-4 md:py-8">
             
             <!-- Hero / Daily Poem -->
             <section class="text-center relative">
-                <div class="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-8 w-24 h-1 bg-stone-200/50 rounded-full"></div>
-                <span class="uppercase tracking-[0.2em] text-xs font-bold text-stone-400 mb-6 block">Poem of the Day</span>
-                <div id="daily-poem-container" class="max-w-3xl mx-auto bg-white p-8 md:p-12 rounded-2xl shadow-sm border border-stone-100">
+                <div class="hidden md:block absolute top-0 left-1/2 -translate-x-1/2 -translate-y-8 w-24 h-1 bg-stone-200/50 rounded-full"></div>
+                <span class="uppercase tracking-[0.2em] text-[10px] md:text-xs font-bold text-stone-400 mb-4 md:mb-6 block">Poem of the Day</span>
+                <div id="daily-poem-container" class="max-w-3xl mx-auto bg-white p-6 md:p-12 rounded-2xl shadow-sm border border-stone-100">
                     <!-- Daily poem content -->
                     <div class="loader mx-auto"></div>
                 </div>
@@ -196,50 +198,50 @@
 
              <!-- Moods (Moved Up) -->
              <section class="max-w-3xl mx-auto text-center">
-                <h2 class="text-2xl text-stone-800 mb-6 font-light italic serif-heading">What is your heart seeking?</h2>
-                <div class="flex flex-wrap justify-center gap-3">
-                    <button onclick="app.searchByTerm('Love')" class="px-6 py-2.5 rounded-full bg-white border border-stone-200 text-stone-600 hover:bg-stone-800 hover:text-white hover:border-stone-800 transition-all shadow-sm hover:shadow-md">Love</button>
-                    <button onclick="app.searchByTerm('Nature')" class="px-6 py-2.5 rounded-full bg-white border border-stone-200 text-stone-600 hover:bg-stone-800 hover:text-white hover:border-stone-800 transition-all shadow-sm hover:shadow-md">Nature</button>
-                    <button onclick="app.searchByTerm('Death')" class="px-6 py-2.5 rounded-full bg-white border border-stone-200 text-stone-600 hover:bg-stone-800 hover:text-white hover:border-stone-800 transition-all shadow-sm hover:shadow-md">Melancholy</button>
-                    <button onclick="app.searchByTerm('Spring')" class="px-6 py-2.5 rounded-full bg-white border border-stone-200 text-stone-600 hover:bg-stone-800 hover:text-white hover:border-stone-800 transition-all shadow-sm hover:shadow-md">Spring</button>
-                    <button onclick="app.searchByTerm('Time')" class="px-6 py-2.5 rounded-full bg-white border border-stone-200 text-stone-600 hover:bg-stone-800 hover:text-white hover:border-stone-800 transition-all shadow-sm hover:shadow-md">Time</button>
-                    <button onclick="app.searchByTerm('Dream')" class="px-6 py-2.5 rounded-full bg-white border border-stone-200 text-stone-600 hover:bg-stone-800 hover:text-white hover:border-stone-800 transition-all shadow-sm hover:shadow-md">Dreams</button>
+                <h2 class="text-xl md:text-2xl text-stone-800 mb-4 md:mb-6 font-light italic serif-heading">What is your heart seeking?</h2>
+                <div class="flex flex-wrap justify-center gap-2 md:gap-3">
+                    <button onclick="app.searchByTerm('Love')" class="px-4 py-2 md:px-6 md:py-2.5 rounded-full bg-white border border-stone-200 text-stone-600 text-sm md:text-base hover:bg-stone-800 hover:text-white hover:border-stone-800 transition-all shadow-sm hover:shadow-md">Love</button>
+                    <button onclick="app.searchByTerm('Nature')" class="px-4 py-2 md:px-6 md:py-2.5 rounded-full bg-white border border-stone-200 text-stone-600 text-sm md:text-base hover:bg-stone-800 hover:text-white hover:border-stone-800 transition-all shadow-sm hover:shadow-md">Nature</button>
+                    <button onclick="app.searchByTerm('Death')" class="px-4 py-2 md:px-6 md:py-2.5 rounded-full bg-white border border-stone-200 text-stone-600 text-sm md:text-base hover:bg-stone-800 hover:text-white hover:border-stone-800 transition-all shadow-sm hover:shadow-md">Melancholy</button>
+                    <button onclick="app.searchByTerm('Spring')" class="px-4 py-2 md:px-6 md:py-2.5 rounded-full bg-white border border-stone-200 text-stone-600 text-sm md:text-base hover:bg-stone-800 hover:text-white hover:border-stone-800 transition-all shadow-sm hover:shadow-md">Spring</button>
+                    <button onclick="app.searchByTerm('Time')" class="px-4 py-2 md:px-6 md:py-2.5 rounded-full bg-white border border-stone-200 text-stone-600 text-sm md:text-base hover:bg-stone-800 hover:text-white hover:border-stone-800 transition-all shadow-sm hover:shadow-md">Time</button>
+                    <button onclick="app.searchByTerm('Dream')" class="px-4 py-2 md:px-6 md:py-2.5 rounded-full bg-white border border-stone-200 text-stone-600 text-sm md:text-base hover:bg-stone-800 hover:text-white hover:border-stone-800 transition-all shadow-sm hover:shadow-md">Dreams</button>
                 </div>
             </section>
 
             <!-- The Greats (Top) -->
             <section>
-                <div class="flex flex-col md:flex-row justify-between items-end mb-8 border-b border-stone-200 pb-4">
-                    <h2 class="text-3xl text-stone-800 serif-heading">The Greats</h2>
+                <div class="flex flex-col md:flex-row justify-between items-end mb-6 md:mb-8 border-b border-stone-200 pb-4">
+                    <h2 class="text-2xl md:text-3xl text-stone-800 serif-heading">The Greats</h2>
                     <span class="text-xs text-stone-400 uppercase tracking-wider mt-2 md:mt-0">Curated Masters</span>
                 </div>
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
                     <!-- Generated via JS -->
-                    <button onclick="app.fetchAuthorSample('William Shakespeare')" class="group h-32 p-6 bg-stone-800 text-[#FDFBF7] rounded-xl hover:bg-stone-700 hover:shadow-lg transition-all text-left flex flex-col justify-between">
-                        <div class="font-serif text-xl">Shakespeare</div>
+                    <button onclick="app.fetchAuthorSample('William Shakespeare')" class="group h-24 md:h-32 p-5 md:p-6 bg-stone-800 text-[#FDFBF7] rounded-xl hover:bg-stone-700 hover:shadow-lg transition-all text-left flex flex-col justify-between">
+                        <div class="font-serif text-lg md:text-xl">Shakespeare</div>
                         <div class="text-xs text-stone-400 opacity-60 group-hover:opacity-100 transition-opacity">The Bard</div>
                     </button>
-                    <button onclick="app.fetchAuthorSample('Emily Dickinson')" class="group h-32 p-6 bg-white border border-stone-200 rounded-xl hover:border-stone-400 hover:shadow-md transition-all text-left flex flex-col justify-between">
-                        <div class="font-serif text-xl text-stone-800">Dickinson</div>
+                    <button onclick="app.fetchAuthorSample('Emily Dickinson')" class="group h-24 md:h-32 p-5 md:p-6 bg-white border border-stone-200 rounded-xl hover:border-stone-400 hover:shadow-md transition-all text-left flex flex-col justify-between">
+                        <div class="font-serif text-lg md:text-xl text-stone-800">Dickinson</div>
                         <div class="text-xs text-stone-400">The Recluse</div>
                     </button>
-                    <button onclick="app.fetchAuthorSample('Edgar Allan Poe')" class="group h-32 p-6 bg-white border border-stone-200 rounded-xl hover:border-stone-400 hover:shadow-md transition-all text-left flex flex-col justify-between">
-                        <div class="font-serif text-xl text-stone-800">Poe</div>
+                    <button onclick="app.fetchAuthorSample('Edgar Allan Poe')" class="group h-24 md:h-32 p-5 md:p-6 bg-white border border-stone-200 rounded-xl hover:border-stone-400 hover:shadow-md transition-all text-left flex flex-col justify-between">
+                        <div class="font-serif text-lg md:text-xl text-stone-800">Poe</div>
                         <div class="text-xs text-stone-400">The Macabre</div>
                     </button>
-                    <button onclick="app.fetchAuthorSample('Robert Frost')" class="group h-32 p-6 bg-white border border-stone-200 rounded-xl hover:border-stone-400 hover:shadow-md transition-all text-left flex flex-col justify-between">
-                        <div class="font-serif text-xl text-stone-800">Frost</div>
+                    <button onclick="app.fetchAuthorSample('Robert Frost')" class="group h-24 md:h-32 p-5 md:p-6 bg-white border border-stone-200 rounded-xl hover:border-stone-400 hover:shadow-md transition-all text-left flex flex-col justify-between">
+                        <div class="font-serif text-lg md:text-xl text-stone-800">Frost</div>
                         <div class="text-xs text-stone-400">The Naturalist</div>
                     </button>
                 </div>
             </section>
 
              <!-- Random Discovery (Moved to bottom) -->
-             <section class="bg-stone-200/50 p-10 rounded-2xl text-center border border-stone-300/30 backdrop-blur-sm">
-                <i data-lucide="sparkles" class="w-8 h-8 text-stone-400 mx-auto mb-4"></i>
-                <h2 class="text-2xl mb-3 text-stone-800 serif-heading">Serendipity</h2>
-                <p class="text-stone-600 mb-8 font-light italic">"A good poem is a contribution to reality."</p>
-                <button onclick="app.fetchRandomPoem()" class="bg-stone-800 text-[#FDFBF7] px-10 py-4 rounded-full hover:bg-stone-700 transition-all shadow-lg hover:shadow-xl hover:-translate-y-1 flex items-center mx-auto gap-3 text-lg font-medium">
+             <section class="bg-stone-200/50 p-6 md:p-10 rounded-2xl text-center border border-stone-300/30 backdrop-blur-sm">
+                <i data-lucide="sparkles" class="w-6 h-6 md:w-8 md:h-8 text-stone-400 mx-auto mb-3 md:mb-4"></i>
+                <h2 class="text-xl md:text-2xl mb-2 md:mb-3 text-stone-800 serif-heading">Serendipity</h2>
+                <p class="text-stone-600 mb-6 md:mb-8 font-light italic text-sm md:text-base">"A good poem is a contribution to reality."</p>
+                <button onclick="app.fetchRandomPoem()" class="bg-stone-800 text-[#FDFBF7] px-8 py-3 md:px-10 md:py-4 rounded-full hover:bg-stone-700 transition-all shadow-lg hover:shadow-xl hover:-translate-y-1 flex items-center mx-auto gap-3 text-base md:text-lg font-medium w-full md:w-auto justify-center">
                     <i data-lucide="shuffle" class="w-5 h-5"></i>
                     <span>Read a Random Poem</span>
                 </button>
@@ -248,22 +250,22 @@
     </template>
 
     <template id="view-search">
-        <div class="fade-in max-w-2xl mx-auto pt-8">
-            <h2 class="text-4xl serif-heading text-center mb-10">Find a Poem</h2>
+        <div class="fade-in max-w-2xl mx-auto pt-4 md:pt-8">
+            <h2 class="text-3xl md:text-4xl serif-heading text-center mb-6 md:mb-10">Find a Poem</h2>
             
-            <div class="relative mb-12">
-                <input type="text" id="search-input" placeholder="Search by title (e.g., Ozymandias)..." 
-                    class="w-full px-8 py-5 text-xl bg-white border border-stone-200 rounded-full focus:outline-none focus:ring-2 focus:ring-stone-400 shadow-md placeholder-stone-300"
+            <div class="relative mb-8 md:mb-12">
+                <input type="text" id="search-input" placeholder="Search by title..." 
+                    class="w-full px-5 py-4 md:px-8 md:py-5 text-lg md:text-xl bg-white border border-stone-200 rounded-full focus:outline-none focus:ring-2 focus:ring-stone-400 shadow-md placeholder-stone-300"
                     onkeypress="if(event.key === 'Enter') app.performSearch()">
-                <button onclick="app.performSearch()" class="absolute right-3 top-3 bg-stone-800 text-white p-3 rounded-full hover:bg-stone-700 transition-colors">
-                    <i data-lucide="search" class="w-6 h-6"></i>
+                <button onclick="app.performSearch()" class="absolute right-2 top-2 md:right-3 md:top-3 bg-stone-800 text-white p-2.5 md:p-3 rounded-full hover:bg-stone-700 transition-colors">
+                    <i data-lucide="search" class="w-5 h-5 md:w-6 md:h-6"></i>
                 </button>
             </div>
 
-            <div id="search-results" class="space-y-6">
+            <div id="search-results" class="space-y-4 md:space-y-6">
                 <!-- Results go here -->
-                <div class="text-center text-stone-400 italic mt-16">
-                    <i data-lucide="library" class="w-12 h-12 mx-auto mb-4 opacity-20"></i>
+                <div class="text-center text-stone-400 italic mt-12 md:mt-16">
+                    <i data-lucide="library" class="w-10 h-10 md:w-12 md:h-12 mx-auto mb-4 opacity-20"></i>
                     Enter a title to begin your journey...
                 </div>
             </div>
@@ -271,31 +273,31 @@
     </template>
 
     <template id="view-poem">
-        <div class="fade-in max-w-3xl mx-auto pb-16 pt-4">
-            <button onclick="app.back()" class="mb-8 flex items-center text-sm font-medium text-stone-500 hover:text-stone-900 transition-colors bg-white px-4 py-2 rounded-full shadow-sm border border-stone-100 w-fit">
+        <div class="fade-in max-w-3xl mx-auto pb-10 md:pb-16 pt-2 md:pt-4">
+            <button onclick="app.back()" class="mb-6 md:mb-8 flex items-center text-sm font-medium text-stone-500 hover:text-stone-900 transition-colors bg-white px-3 py-1.5 md:px-4 md:py-2 rounded-full shadow-sm border border-stone-100 w-fit">
                 <i data-lucide="arrow-left" class="w-4 h-4 mr-2"></i> Back to Hub
             </button>
             
-            <div class="bg-white p-10 md:p-16 shadow-xl shadow-stone-200/50 rounded-2xl border border-stone-100 relative">
+            <div class="bg-white p-6 md:p-16 shadow-xl shadow-stone-200/50 rounded-2xl border border-stone-100 relative">
                 <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-stone-200 via-stone-400 to-stone-200 opacity-20 rounded-t-2xl"></div>
                 
-                <button onclick="app.toggleFavorite()" id="fav-btn" class="absolute top-10 right-10 text-stone-300 hover:text-red-500 transition-colors p-2 hover:bg-stone-50 rounded-full">
-                    <i data-lucide="heart" class="w-7 h-7"></i>
+                <button onclick="app.toggleFavorite()" id="fav-btn" class="absolute top-6 right-6 md:top-10 md:right-10 text-stone-300 hover:text-red-500 transition-colors p-2 hover:bg-stone-50 rounded-full">
+                    <i data-lucide="heart" class="w-6 h-6 md:w-7 md:h-7"></i>
                 </button>
 
-                <h1 id="poem-title" class="text-4xl md:text-5xl serif-heading text-stone-900 mb-4 text-center leading-tight"></h1>
-                <div class="flex justify-center mb-12">
-                    <span class="h-px w-20 bg-stone-300 my-auto mx-4"></span>
-                    <h3 id="poem-author" class="text-sm font-bold text-stone-500 uppercase tracking-widest"></h3>
-                    <span class="h-px w-20 bg-stone-300 my-auto mx-4"></span>
+                <h1 id="poem-title" class="text-3xl md:text-5xl serif-heading text-stone-900 mb-4 text-center leading-tight mt-4 md:mt-0"></h1>
+                <div class="flex justify-center mb-8 md:mb-12">
+                    <span class="h-px w-12 md:w-20 bg-stone-300 my-auto mx-3 md:mx-4"></span>
+                    <h3 id="poem-author" class="text-xs md:text-sm font-bold text-stone-500 uppercase tracking-widest text-center"></h3>
+                    <span class="h-px w-12 md:w-20 bg-stone-300 my-auto mx-3 md:mx-4"></span>
                 </div>
                 
                 <!-- Poem content container with specific ID for selection targeting -->
-                <div id="poem-container-inner">
-                    <div id="poem-lines" class="poem-text text-xl md:text-2xl text-stone-800 mb-12 px-2 md:px-8 text-center md:text-left leading-loose"></div>
+                <div id="poem-container-inner" class="overflow-x-hidden">
+                    <div id="poem-lines" class="poem-text text-lg md:text-2xl text-stone-800 mb-8 md:mb-12 px-0 md:px-8 text-center md:text-left leading-relaxed md:leading-loose"></div>
                 </div>
                 
-                <div class="border-t border-stone-100 pt-8 mt-12 text-center text-xs font-semibold text-stone-300 uppercase tracking-widest">
+                <div class="border-t border-stone-100 pt-6 md:pt-8 mt-8 md:mt-12 text-center text-[10px] md:text-xs font-semibold text-stone-300 uppercase tracking-widest">
                     <span>Of Ink and Echos Archive</span>
                 </div>
             </div>
@@ -303,20 +305,20 @@
     </template>
 
     <template id="view-favorites">
-        <div class="fade-in max-w-3xl mx-auto pt-8">
-            <h2 class="text-4xl serif-heading mb-3">Your Collection</h2>
-            <p class="text-stone-500 mb-12 text-lg">Poems you've saved for a rainy day.</p>
+        <div class="fade-in max-w-3xl mx-auto pt-4 md:pt-8">
+            <h2 class="text-3xl md:text-4xl serif-heading mb-2 md:mb-3">Your Collection</h2>
+            <p class="text-stone-500 mb-8 md:mb-12 text-base md:text-lg">Poems you've saved for a rainy day.</p>
             
-            <div id="favorites-list" class="grid gap-6">
+            <div id="favorites-list" class="grid gap-4 md:gap-6">
                 <!-- Favorites injected here -->
             </div>
             
-            <div id="no-favorites" class="hidden text-center py-32 bg-white rounded-2xl border border-stone-200 border-dashed shadow-sm">
-                <div class="bg-stone-50 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <i data-lucide="book-open" class="w-8 h-8 text-stone-400"></i>
+            <div id="no-favorites" class="hidden text-center py-20 md:py-32 bg-white rounded-2xl border border-stone-200 border-dashed shadow-sm">
+                <div class="bg-stone-50 w-16 h-16 md:w-20 md:h-20 rounded-full flex items-center justify-center mx-auto mb-4 md:mb-6">
+                    <i data-lucide="book-open" class="w-6 h-6 md:w-8 md:h-8 text-stone-400"></i>
                 </div>
-                <h3 class="text-xl font-medium text-stone-800 mb-2">Your collection is empty</h3>
-                <p class="text-stone-500 mb-6 max-w-xs mx-auto">Start exploring and save the poems that speak to your soul.</p>
+                <h3 class="text-lg md:text-xl font-medium text-stone-800 mb-2">Your collection is empty</h3>
+                <p class="text-stone-500 mb-4 md:mb-6 max-w-xs mx-auto text-sm md:text-base">Start exploring and save the poems that speak to your soul.</p>
                 <button onclick="app.navigate('home')" class="text-stone-900 font-semibold hover:underline underline-offset-4 decoration-2 decoration-stone-300">Go discover some</button>
             </div>
         </div>
@@ -359,10 +361,6 @@
                 }
 
                 const text = selection.toString().trim();
-                // Basic validation: Is it inside a poem container? 
-                // We use anchorNode to check parent. 
-                // We want to allow looking up anywhere effectively, but especially in poems.
-                // Let's just allow it globally for now as it's a useful feature.
                 
                 // Limit to reasonably short selections (likely single words or short phrases)
                 if (text.split(' ').length > 3 || text.length > 30) {
@@ -380,8 +378,12 @@
                 
                 // Calculate position relative to the page
                 // We want it centered above the selection
-                const top = rect.top + window.scrollY - 40; // 40px above
-                const left = rect.left + window.scrollX + (rect.width / 2);
+                let top = rect.top + window.scrollY - 40; // 40px above
+                let left = rect.left + window.scrollX + (rect.width / 2);
+
+                // Simple boundary check to prevent horizontal overflow
+                if (left < 50) left = 50;
+                if (left > window.innerWidth - 50) left = window.innerWidth - 50;
 
                 this.tooltip.style.top = `${top}px`;
                 this.tooltip.style.left = `${left}px`;
@@ -586,10 +588,10 @@
                 const snippet = poem.lines.slice(0, 6).join('\n');
                 container.innerHTML = `
                     <div class="cursor-pointer group" onclick='app.viewPoem(${JSON.stringify(poem).replace(/'/g, "&#39;")})'>
-                        <h3 class="text-3xl md:text-5xl serif-heading text-stone-900 mb-4 group-hover:text-stone-700 transition-colors leading-tight">${poem.title}</h3>
-                        <p class="text-xs font-bold text-stone-400 uppercase tracking-[0.2em] mb-8">${poem.author}</p>
-                        <p class="font-serif text-stone-600 italic leading-loose text-lg md:text-xl border-l-4 border-stone-200 pl-6 md:pl-8 text-left opacity-90 group-hover:opacity-100 group-hover:border-stone-400 transition-all">${snippet}...</p>
-                        <div class="mt-8 text-sm font-semibold text-stone-800 flex items-center justify-center md:justify-start">
+                        <h3 class="text-2xl md:text-5xl serif-heading text-stone-900 mb-3 md:mb-4 group-hover:text-stone-700 transition-colors leading-tight">${poem.title}</h3>
+                        <p class="text-[10px] md:text-xs font-bold text-stone-400 uppercase tracking-[0.2em] mb-4 md:mb-8">${poem.author}</p>
+                        <p class="font-serif text-stone-600 italic leading-loose text-base md:text-xl border-l-4 border-stone-200 pl-4 md:pl-8 text-left opacity-90 group-hover:opacity-100 group-hover:border-stone-400 transition-all">${snippet}...</p>
+                        <div class="mt-6 md:mt-8 text-sm font-semibold text-stone-800 flex items-center justify-center md:justify-start">
                             <span>Read Full Poem</span>
                             <i data-lucide="arrow-right" class="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform"></i>
                         </div>
@@ -698,8 +700,8 @@
 
                 div.innerHTML = `
                     <div onclick='app.viewPoem(${JSON.stringify(poem).replace(/'/g, "&#39;")})'>
-                        <h4 class="text-xl font-serif text-stone-800 font-medium group-hover:text-black mb-1">${poem.title}</h4>
-                        <p class="text-xs font-bold text-stone-400 uppercase tracking-widest mb-4">${poem.author}</p>
+                        <h4 class="text-lg md:text-xl font-serif text-stone-800 font-medium group-hover:text-black mb-1">${poem.title}</h4>
+                        <p class="text-[10px] md:text-xs font-bold text-stone-400 uppercase tracking-widest mb-3 md:mb-4">${poem.author}</p>
                         <p class="text-sm text-stone-500 font-serif italic opacity-70 leading-relaxed">${snippet}</p>
                     </div>
                 `;
